@@ -5,6 +5,7 @@ pipeline {
         nodejs 'node20'
     }
 
+
     environment {
         APP_DIR = 'api/javascript'
     }
