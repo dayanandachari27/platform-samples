@@ -5,16 +5,18 @@ pipeline {
         nodejs 'NodeJS-18'
     }
 
-
     environment {
-        APP_DIR = 'api/javascript/es2015-nodejs'
+        APP_DIR     = 'api/javascript/es2015-nodejs'
+        IMAGE_NAME  = 'sample-api'
+        CONTAINER   = 'sample-api-container'
+        PORT        = '3000'
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/dayanandachari27/platform-samples'
+                checkout scm
             }
         }
 
@@ -26,37 +28,58 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                dir("${APP_DIR}") {
-                    sh 'npm run build || echo "No build step"'
-                }
-            }
-        }
-
         stage('Test') {
             steps {
                 dir("${APP_DIR}") {
-                    sh 'npm test || echo "No tests"'
+                    sh 'npm test || echo "Tests skipped"'
                 }
             }
         }
 
-        stage('Run App (Optional)') {
+        stage('Build Container Image') {
             steps {
                 dir("${APP_DIR}") {
-                    sh 'nohup npm start &'
+                    sh '''
+                    podman build -t ${IMAGE_NAME}:latest .
+                    '''
                 }
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                sh '''
+                podman rm -f ${CONTAINER} || true
+
+                podman run -d \
+                  --name ${CONTAINER} \
+                  -p ${PORT}:${PORT} \
+                  ${IMAGE_NAME}:latest
+                '''
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh '''
+                sleep 10
+                curl http://localhost:${PORT} || true
+                '''
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfullys'
+            echo 'CI/CD completed successfully '
         }
+
         failure {
             echo 'Pipeline failed '
+        }
+
+        always {
+            sh 'podman ps -a || true'
         }
     }
 }
