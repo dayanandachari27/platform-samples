@@ -2,10 +2,14 @@
   "name": "js-octokit",
   "version": "0.0.1",
   "scripts": {
-    "test": "./node_modules/.bin/mocha tests/**"
+    "start": "node index.js",
+    "test": "mocha tests/**"
   },
   "author": "@k33g",
   "dependencies": {
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0"
   }
 }
