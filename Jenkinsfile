@@ -7,7 +7,7 @@ pipeline {
 
 
     environment {
-        APP_DIR = 'api/javascript'
+        APP_DIR = 'api/javascript/es2015-nodejs'
     }
 
     stages {
