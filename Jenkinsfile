@@ -21,7 +21,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir("${APP_DIR}") {
-                    sh 'npm install'
+                    sh 'npm install --include=dev'
                 }
             }
         }
